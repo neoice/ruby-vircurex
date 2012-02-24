@@ -21,8 +21,37 @@ require 'net/http'
 require 'json'
 
 module Vircurex
-  class API
-    def initialize username
+  class ExchangeAPI
+    def initialize use_json = true
+      @format = use_json ? 'json' : 'xml'
+      
+      @http = Net::HTTP.new('vircurex.com', 443)
+      @http.use_ssl = true
+      @http.verify_mode = OpenSSL::SSL::VERIFY_PEER
+      
+      m = %w(get_lowest_ask get_highest_bid get_last_trade get_volume
+             get_info_for_currency orderbook trades)
+      
+      (class << self; self; end).class_eval do
+        m.each do |method|
+          define_method(method.to_sym) do |*args|
+            response = ''
+            q = "/api/#{method}.#{@format}?" +
+                (args.first.to_a.collect { |i| "#{i.first}=#{i.last}" }.join('&'))
+            @http.start do |http|
+              req = Net::HTTP::Get.new(q)
+              response = http.request(req).body
+            end
+            JSON.parse(response)
+          end
+        end
+      end
+    end
+  end
+  
+  class TradeAPI
+    def initialize username, use_json = true
+      @format = use_json ? 'json' : 'xml'
       @username = username
       
       @http = Net::HTTP.new('vircurex.com', 443)
@@ -34,10 +63,6 @@ module Vircurex
       (class << self; self; end).class_eval do
         m.each do |method|
           define_method(method.to_sym) do |*args|
-            if args.length != 2
-              raise ArgumentError, "wrong number of arguments (#{args.length} for 2)"
-            end
-            
             secret_word = args.select { |i| i.class == String }.first
             args = args.select { |i| i.class == Hash }.first
             
@@ -49,7 +74,7 @@ module Vircurex
                     (args.values.collect { |i| i.to_s }.join(';'))
             token = Digest::SHA2.hexdigest(token)
             
-            q = "/api/#{method}.json?account=#{@username}&id=#{trx_id}" +
+            q = "/api/#{method}.#{@format}?account=#{@username}&id=#{trx_id}" +
                 "&token=#{token}&timestamp=#{timestamp}&" +
                 (args.to_a.collect { |i| "#{i.first}=#{i.last}" }.join('&'))
             

@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name = 'ruby-vircurex'
-  s.version = '0.0.1'
+  s.version = '0.0.2'
   s.date = Time.now
   s.homepage = 'https://github.com/mikhailvs/ruby-vircurex'
   s.authors = ['Mikhail Slyusarev']
