@@ -8,6 +8,6 @@ example:
   puts e_response.inspect # do whatever with data
 
   trade_api = Vircurex::TradeAPI.new("mikhail")
-  t_response = api.get_balance({:currency => "btc"}, "thisissparta123!YAY")
+  t_response = api.get_balance({:currency => "btc"}, "soopersecretword")
   puts t_response.inspect # do whatever with data
 
