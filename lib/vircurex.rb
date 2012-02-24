@@ -20,20 +20,23 @@
 require 'net/http'
 require 'json'
 
-module Vircurex
-  class ExchangeAPI
-    def initialize use_json = true
+module Vircurex  
+  class API
+    def initialize username, use_json = true
       @format = use_json ? 'json' : 'xml'
+      @username = username
       
       @http = Net::HTTP.new('vircurex.com', 443)
       @http.use_ssl = true
       @http.verify_mode = OpenSSL::SSL::VERIFY_PEER
       
-      m = %w(get_lowest_ask get_highest_bid get_last_trade get_volume
-             get_info_for_currency orderbook trades)
+      trade_methods = %w(get_balance create_order release_order delete_order read_order
+                         read_orderexecutions)
+      exchange_methods = %w(get_lowest_ask get_highest_bid get_last_trade get_volume
+                            get_info_for_currency orderbook trades)
       
       (class << self; self; end).class_eval do
-        m.each do |method|
+        exchange_methods.each do |method|
           define_method(method.to_sym) do |*args|
             response = ''
             q = "/api/#{method}.#{@format}?" +
@@ -46,22 +49,9 @@ module Vircurex
           end
         end
       end
-    end
-  end
-  
-  class TradeAPI
-    def initialize username, use_json = true
-      @format = use_json ? 'json' : 'xml'
-      @username = username
-      
-      @http = Net::HTTP.new('vircurex.com', 443)
-      @http.use_ssl = true
-      @http.verify_mode = OpenSSL::SSL::VERIFY_PEER
-      
-      m = %w(get_balance create_order release_order delete_order read_order read_orderexecutions)
       
       (class << self; self; end).class_eval do
-        m.each do |method|
+        trade_methods.each do |method|
           define_method(method.to_sym) do |*args|
             secret_word = args.select { |i| i.class == String }.first
             args = args.select { |i| i.class == Hash }.first

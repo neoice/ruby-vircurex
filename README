@@ -3,11 +3,8 @@ ruby-vircurex is just a simple wrapper around the vircurex API as described here
 example:
   require 'vircurex'
   
-  exchange_api = Vircurex::ExchangeAPI.new
-  e_response = exchange_api.get_info_for_currency
+  api = Vircurex::API.new 'mikhail'
+  e_response = api.get_info_for_currency
   puts e_response.inspect # do whatever with data
-
-  trade_api = Vircurex::TradeAPI.new("mikhail")
-  t_response = trade_api.get_balance({:currency => "btc"}, "soopersecretword")
+  t_response = api.get_balance({:currency => "btc"}, "soopersecretword")
   puts t_response.inspect # do whatever with data
-
