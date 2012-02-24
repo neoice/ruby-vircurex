@@ -7,7 +7,11 @@ example:
   require 'vircurex'
   
   api = Vircurex::API.new 'mikhail'
+  
   e_response = api.get_info_for_currency
   puts e_response.inspect # do whatever with data
+  
+  # see https://vircurex.com/welcome/api for details about what parameters are required
+  # note: the parameter hash and the secret word can be in any order
   t_response = api.get_balance({:currency => "btc"}, "soopersecretword")
   puts t_response.inspect # do whatever with data
