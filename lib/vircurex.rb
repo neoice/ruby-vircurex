@@ -30,8 +30,8 @@ module Vircurex
       @http.use_ssl = true
       @http.verify_mode = OpenSSL::SSL::VERIFY_PEER
       
-      trade_methods = %w(get_balance create_order release_order delete_order read_order
-                         read_orderexecutions)
+      trade_methods = %w(get_balance create_order release_order create_released_order delete_order
+                         read_order read_orderexecutions)
       exchange_methods = %w(get_lowest_ask get_highest_bid get_last_trade get_volume
                             get_info_for_currency orderbook trades)
       
@@ -59,8 +59,14 @@ module Vircurex
             response = ''
             timestamp = Time.now.gmtime.strftime("%Y-%m-%dT%H:%M:%S")
             trx_id = Digest::SHA2.hexdigest("#{timestamp}-#{rand}")
+
+            if method == 'create_released_order'
+              _m = 'create_order'
+            else
+              _m = method
+            end
             
-            token = "#{secret_word};#{@username};#{timestamp};#{trx_id};#{method};" +
+            token = "#{secret_word};#{@username};#{timestamp};#{trx_id};#{_m};" +
                     (args.values.collect { |i| i.to_s }.join(';'))
             token = Digest::SHA2.hexdigest(token)
             
